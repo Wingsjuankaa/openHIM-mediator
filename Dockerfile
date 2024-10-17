@@ -20,7 +20,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Exponer el puerto si tu aplicación necesita aceptar conexiones
-# EXPOSE 8080 (Descomentar si es necesario)
+EXPOSE 9800
 
 # Comando para ejecutar la aplicación (ajustar según cómo corras tu aplicación)
 CMD ["python", "main.py"]
