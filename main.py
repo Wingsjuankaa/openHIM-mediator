@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi import BackgroundTasks
 
 from auth import Auth
 from mediator_registration import MediatorRegistration
@@ -117,12 +118,7 @@ def run_mediator():
         print(f"Error: {e}")
 
 
-# Ejecutar FastAPI y Mediator
-if __name__ == "__main__":
-    # Ejecutar la lógica del mediador (autenticación, registro, heartbeat)
-    run_mediator()
-
-    # Levantar el servidor FastAPI en el puerto 9800
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=9800)
+# Evento de inicio de FastAPI
+@app.on_event("startup")
+async def startup_event():
+    run_mediator()  # Ejecutar la lógica del mediador en el arranque del servidor
