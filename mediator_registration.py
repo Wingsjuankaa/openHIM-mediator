@@ -9,7 +9,7 @@ class MediatorRegistration:
         self.auth = kwargs['auth']
     
     def run(self):
-        self.auth.authenticate()
+        auth = self.auth.authenticate()
 
         if not self.options['verify_cert']:
             urllib3.disable_warnings(
@@ -19,6 +19,7 @@ class MediatorRegistration:
         resp = requests.post(
             url=self.options['mediators_url'],
             json=self.conf,
+            auth=auth,
             headers=self.auth.gen_auth_headers(),
             verify=self.options['verify_cert']
         )
