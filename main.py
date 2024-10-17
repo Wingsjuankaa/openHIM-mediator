@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI
+
 from auth import Auth
 from mediator_registration import MediatorRegistration
 from heartbeat import Heartbeat
@@ -8,7 +10,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
+# Crear una instancia de FastAPI
+app = FastAPI()
 
+
+# Definir un endpoint para probar que el servidor está levantado
+@app.get("/")
+def read_root():
+    return {"message": "Mediator is running"}
+
+
+# Clase Main
 class Main:
     def __init__(self, **kwargs):
         # Instancia de autenticación
@@ -19,7 +31,7 @@ class Main:
             auth=self.auth,
             conf=kwargs['conf'],
             options={
-                # Ajuste aquí: Cambiamos la URL para coincidir con la ruta del canal en OpenHIM
+                # Cambiamos la URL para coincidir con la ruta del canal en OpenHIM
                 'mediators_url': "{}/mediator/register".format(kwargs['options']['apiURL']),
                 'verify_cert': kwargs['options']['verify_cert'],
                 'force_config': kwargs['options']['force_config']
@@ -38,10 +50,6 @@ class Main:
     def authenticate(self):
         return self.auth.authenticate()
 
-    # Método para generar encabezados de autenticación
-    def gen_auth_headers(self):
-        return self.auth.gen_auth_headers()
-
     # Método para registrar el mediador
     def register_mediator(self):
         self.mediator_registration.run()
@@ -59,7 +67,8 @@ class Main:
         return self.heartbeat.fetch_config()
 
 
-if __name__ == "__main__":
+# Configuración y ejecución del mediador
+def run_mediator():
     # Configuración del mediador
     conf = {
         "urn": "urn:mediator:openmrs-mediator",
@@ -106,3 +115,14 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f"Error: {e}")
+
+
+# Ejecutar FastAPI y Mediator
+if __name__ == "__main__":
+    # Ejecutar la lógica del mediador (autenticación, registro, heartbeat)
+    run_mediator()
+
+    # Levantar el servidor FastAPI en el puerto 9800
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=9800)
