@@ -1,21 +1,26 @@
-# Usar una imagen oficial de Python como imagen base
+# Usar una imagen base de Python (la versión 3.9 es adecuada, pero puedes cambiarla a la versión que necesites)
 FROM python:3.9-slim
 
-# Establecer el directorio de trabajo en el contenedor
+# Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Actualizar pip
-RUN pip install --upgrade pip
-
-# Copiar el archivo de dependencias y instalarlas
+# Copiar el archivo de dependencias (requirements.txt) al contenedor
 COPY requirements.txt .
+
+# Instalar las dependencias necesarias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de los archivos de código fuente al directorio de trabajo
+# Copiar el código de la aplicación al directorio de trabajo dentro del contenedor
 COPY . .
 
-# Exponer el puerto en el que FastAPI estará escuchando
-EXPOSE 9800
+# Establecer la variable de entorno para que Python no almacene archivos .pyc
+ENV PYTHONDONTWRITEBYTECODE 1
 
-# Ejecutar Uvicorn con la aplicación FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9800"]
+# Establecer la variable de entorno para que Python no almacene los logs en buffer (útil para contenedores)
+ENV PYTHONUNBUFFERED 1
+
+# Exponer el puerto si tu aplicación necesita aceptar conexiones
+# EXPOSE 8080 (Descomentar si es necesario)
+
+# Comando para ejecutar la aplicación (ajustar según cómo corras tu aplicación)
+CMD ["python", "main.py"]
