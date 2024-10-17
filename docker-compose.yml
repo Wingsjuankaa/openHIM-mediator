@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mediator-openmrs-openhim:
+    container_name: mediator-openmrs-openhim
+    build: .
+    ports:
+      - "9800:9800"
+    environment:
+      - OPENMRS_BASE_URL={OPENMRS_BASE_URL}
+      - OPENMRS_USER={OPENMRS_USER}
+      - OPENMRS_PASSWORD={OPENMRS_PASSWORD}
+      - OPENHIM_BASE_URL={OPENHIM_BASE_URL}
+      - OPENHIM_URL={OPENHIM_URL}
+      - OPENHIM_USERNAME={OPENHIM_USERNAME}
+      - OPENHIM_PASSWORD={OPENHIM_PASSWORD}
+    restart: unless-stopped
