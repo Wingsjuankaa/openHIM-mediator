@@ -1,8 +1,5 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi import BackgroundTasks
-
 from auth import Auth
 from mediator_registration import MediatorRegistration
 from heartbeat import Heartbeat
@@ -11,17 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
-# Crear una instancia de FastAPI
-app = FastAPI()
 
-
-# Definir un endpoint para probar que el servidor está levantado
-@app.get("/")
-def read_root():
-    return {"message": "Mediator is running"}
-
-
-# Clase Main
 class Main:
     def __init__(self, **kwargs):
         # Instancia de autenticación
@@ -32,7 +19,6 @@ class Main:
             auth=self.auth,
             conf=kwargs['conf'],
             options={
-                # Cambiamos la URL para coincidir con la ruta del canal en OpenHIM
                 'mediators_url': "{}/mediator/register".format(kwargs['options']['apiURL']),
                 'verify_cert': kwargs['options']['verify_cert'],
                 'force_config': kwargs['options']['force_config']
@@ -47,28 +33,23 @@ class Main:
             scheduler=BackgroundScheduler()
         )
 
-    # Método para autenticar
     def authenticate(self):
         return self.auth.authenticate()
 
-    # Método para registrar el mediador
     def register_mediator(self):
         self.mediator_registration.run()
 
-    # Método para activar el heartbeat
     def activate_heartbeat(self):
         return self.heartbeat.activate()
 
-    # Método para desactivar el heartbeat
     def deactivate_heartbeat(self):
         return self.heartbeat.deactivate()
 
-    # Método para obtener la configuración actual
     def fetch_config(self):
         return self.heartbeat.fetch_config()
 
 
-# Configuración y ejecución del mediador
+# Ejecutar el mediador al iniciar
 def run_mediator():
     # Configuración del mediador
     conf = {
@@ -79,7 +60,7 @@ def run_mediator():
         "endpoints": [
             {
                 "name": "Api Base URL",
-                "host": "172.31.7.32",  # Dirección de tu mediador
+                "host": "172.31.7.32",
                 "path": "/",
                 "port": 9800,
                 "primary": True,
@@ -90,11 +71,11 @@ def run_mediator():
 
     # Opciones de OpenHIM y del mediador
     options = {
-        'apiURL': os.getenv('OPENHIM_URL'),  # URL base de la API de OpenHIM
-        'username': os.getenv('OPENHIM_USERNAME'),  # Nombre de usuario de OpenHIM
-        'password': os.getenv('OPENHIM_PASSWORD'),  # Contraseña del usuario de OpenHIM
-        'verify_cert': False,  # Verificar certificados SSL (cambiar a True en producción)
-        'force_config': False  # Si necesitas forzar la configuración
+        'apiURL': os.getenv('OPENHIM_URL'),
+        'username': os.getenv('OPENHIM_USERNAME'),
+        'password': os.getenv('OPENHIM_PASSWORD'),
+        'verify_cert': False,
+        'force_config': False
     }
 
     # Crear instancia de Main
@@ -118,7 +99,12 @@ def run_mediator():
         print(f"Error: {e}")
 
 
-# Evento de inicio de FastAPI
-@app.on_event("startup")
-async def startup_event():
-    run_mediator()  # Ejecutar la lógica del mediador en el arranque del servidor
+if __name__ == "__main__":
+    # Ejecutar el mediador
+    run_mediator()
+
+    # Mantener la aplicación viva (simulación de servidor)
+    import time
+
+    while True:
+        time.sleep(10)
