@@ -20,7 +20,7 @@ class Main:
             conf=kwargs['conf'],
             options={
                 # Ajuste aquí: Cambiamos la URL para coincidir con la ruta del canal en OpenHIM
-                'mediators_url': "{}/mediator/register".format(kwargs['options']['apiURL']),
+                'mediators_url': "{}/mediators".format(kwargs['options']['apiURL']),
                 'verify_cert': kwargs['options']['verify_cert'],
                 'force_config': kwargs['options']['force_config']
             }
