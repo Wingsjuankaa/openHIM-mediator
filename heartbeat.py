@@ -1,12 +1,11 @@
 import requests
 import urllib3
-
 from uptime import uptime
 
 
 class Heartbeat:
     def __init__(self, auth, **kwargs):
-        self.auth = auth
+        self.auth = auth  # Instancia de autenticación básica
         self.options = kwargs['options']
         self.__scheduler = kwargs['scheduler']
         self.__job = None
@@ -22,26 +21,31 @@ class Heartbeat:
                 urllib3.exceptions.InsecureRequestWarning
             )
 
-        mediators_url = "{}/mediators/{}/heartbeat".format(self.options['apiURL'], self.conf['urn'])
+        # Ajustamos la URL del heartbeat, asegúrate de que sea correcta
+        mediators_url = "{}/mediator/{}/heartbeat".format(self.options['apiURL'], self.conf['urn'])
+
+        # Usamos autenticación básica en lugar de headers manuales
         response = requests.post(
             url=mediators_url,
             verify=self.options['verify_cert'],
             json=body,
-            headers=self.auth.gen_auth_headers()
+            auth=self.auth.authenticate()  # Autenticación básica
         )
 
-        if response.status_code is not 200:
+        # Comprobamos que la respuesta sea 200 (OK)
+        if response.status_code != 200:
             raise Exception(
                 "Heartbeat unsuccessful, received status code of {}".format(response.status_code)
             )
 
     def activate(self):
-        self.auth.authenticate()
+        self.auth.authenticate()  # Autenticamos al activar
         if self.__job is None:
+            # Programamos la tarea para enviar el heartbeat periódicamente
             self.__job = self.__scheduler.add_job(
                 self._send,
                 'interval',
-                seconds=self.options['interval'] or 10
+                seconds=self.options.get('interval', 10)  # Intervalo configurado o 10 segundos por defecto
             )
             self.__scheduler.start()
 
